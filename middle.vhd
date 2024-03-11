@@ -62,7 +62,7 @@ signal use_external_clk : std_logic := '0';
 
 begin
 
-data_tx <= "01000001"; --data_in;
+data_tx <= data_in;
 
 --generate 48MHz clock
 osc : HSOSC generic map ( CLKHF_DIV => "0b00")
@@ -111,7 +111,7 @@ if (rising_edge(clk_96)) then
 		init <= '1';
 		--use_external_clk <= '0';
 	else
-		init <= '1';
+		init <= '0';
 	end if;
 end if;
 end process;
