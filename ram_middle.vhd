@@ -1,9 +1,5 @@
 --Known issues (TODO):
---	Rx no worky on higher baud
---	make higher baud
---	change write data from couter to input
 --	make clk_in option
---	prevent it from writing unused data when quit
 --  have tx output be at fastest possible rate
 
 Library IEEE;
@@ -13,11 +9,11 @@ use ieee.std_logic_unsigned.all;
 
 entity middle is 
 generic(
-	byterate   : in  integer := 50; -- Used to send byte when high (MUST BE <= 3840) 
+	byterate   : in  integer := 100; -- Used to send byte when high (MUST BE <= 3840) 
 								    -- this is bytes per second
 	NUM_INPUTS  : natural := 8;
-	NUM_SAMPLES : natural := 256;
-	ADDR_WIDTH  : natural := 8    -- log2 of num_samples
+	NUM_SAMPLES : natural := 1024;
+	ADDR_WIDTH  : natural := 10    -- log2 of num_samples (rounded up)
 );
 port(
 	data_in    : in  std_logic_vector(7 downto 0); -- input to be written
@@ -77,7 +73,7 @@ component ramdp is
   );
 end component;
 
-signal clk_96 : std_logic; --9600 Hz clk
+signal clk_23 : std_logic; --230 kHz clk
 signal clk_48 : std_logic; --48 MHz clk
 signal en : std_logic; -- flipped high to set UART byte
 signal byte_counter : integer range 0 to 4800000 := 0; -- clock divider for data tx
@@ -91,6 +87,7 @@ signal wr_en : std_logic := '0'; -- set high to write to ram, low to read
 signal clk_custom : std_logic; -- clock at specified byte rate
 
 signal ram_counter : unsigned(ADDR_WIDTH downto 0) := (others => '0'); -- address of ram to read/write
+signal ram_used    : unsigned(ADDR_WIDTH downto 0) := (others => '0'); -- stores amount of ram written to reading
 signal w_data_reg  : std_logic_vector(NUM_INPUTS - 1 downto 0); -- register to write to ram
 signal w_addr_reg  : std_logic_vector(ADDR_WIDTH - 1 downto 0); -- address to write to ram
 signal r_addr_reg  : std_logic_vector(ADDR_WIDTH - 1 downto 0); -- register to read to ram
@@ -109,7 +106,7 @@ osc : HSOSC generic map ( CLKHF_DIV => "0b00")
 
 -- trasmit to UART
 tx : uart_tx port map(
-	clk_out    => clk_96,
+	clk_out    => clk_23,
 	clk_in     => clk_48,
 	enable     => en,
 	ready      => ready,
@@ -146,7 +143,7 @@ spi_cs <= '1';
 -- Generates custom clock based on input byterate
 process (clk_48) begin
 if (rising_edge(clk_48)) then
-	if (clk_counter < 48000000 / byterate) then
+	if (clk_counter < 24000000 / byterate) then
 		clk_counter <= clk_counter + 1;
 	else
 		clk_counter <= 0;
@@ -158,13 +155,13 @@ end if;
 end process;
 
 -- transmit bytes at specified byterate when requested
-process (clk_96) begin
-if (rising_edge(clk_96)) then
+process (clk_23) begin
+if (rising_edge(clk_23)) then
 	-- runs only during read state
 	if (tx_init = '1') then
 		byte_counter <= byte_counter + 1;
 		-- set tx enable once every specified byterate
-		if (byte_counter < (9600 / byterate)) then
+		if (byte_counter < (115200 / byterate)) then
 			en <= '1';
 		else
 			en <= '0';
@@ -204,7 +201,8 @@ if (rising_edge(clk_custom)) then
 			tx_init <= '0';
 			-- write to RAM
 			wr_en <= '1';
-			w_data_reg <= std_logic_vector(ram_counter(8 downto 1));--data_in);
+			-- For testing: w_data_reg <= std_logic_vector(ram_counter(8 downto 1));
+			w_data_reg <= std_logic_vector(data_in);
 			w_addr_reg <= std_logic_vector(ram_counter(ADDR_WIDTH - 1 downto 0));
 			ram_counter <= ram_counter + 1;
 			-- Allow rx module to receive after 1 second delay
@@ -213,6 +211,7 @@ if (rising_edge(clk_custom)) then
 			end if;
 			-- finish and reset counter
 			if (ram_counter >= NUM_SAMPLES - 1 or ((ram_counter * NUM_INPUTS) = 1000000000 ) or data_rx = "01110001" or data_rx = "01010001") then
+				ram_used <= ram_counter;
 				finished_w <= '1';
 				state <= rdy;
 			end if;
@@ -229,7 +228,8 @@ if (rising_edge(clk_custom)) then
 			end if;
 			ram_counter <= ram_counter + 1;
 			-- finish and reset counter
-			if (ram_counter >= NUM_SAMPLES - 1 or ((ram_counter * NUM_INPUTS) >= 1000000000 ) or data_rx = "01010001" or data_rx = "01110001") then
+			if (ram_counter >= ram_used - 1 or ((ram_counter * NUM_INPUTS) >= 1000000000 ) or data_rx = "01010001" or data_rx = "01110001") then
+				ram_used <= (others => '0');
 				state <= rdy;
 			end if;
 			
