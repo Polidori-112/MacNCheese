@@ -5,7 +5,7 @@ use ieee.std_logic_unsigned.all;
 
 entity middle is 
 generic(
-	byterate   : in  integer := 1000 -- Used to send byte when high (MUST BE <= 3840) 
+	byterate   : in  integer := 10 -- Used to send byte when high (MUST BE <= 3840) 
 								    -- this is bytes per second
 );
 port(
@@ -48,12 +48,12 @@ port(
 end component;
 
 
-signal clk_96 : std_logic;
+signal clk_23 : std_logic; -- 230400 Hz clk
 signal clk_48 : std_logic;
 signal en : std_logic;
-signal counter : integer range 0 to 38400 := 0; -- for setting enable for debugging
+signal counter : integer range 0 to 115200 := 0; -- for setting enable for debugging
 signal ready : std_logic;
-signal data_tx : std_logic_vector(7 downto 0) := "01000001";
+signal data_tx : std_logic_vector(7 downto 0);
 signal data_rx : std_logic_vector(7 downto 0);
 signal init : std_logic;
 signal test : std_logic;
@@ -62,7 +62,7 @@ signal use_external_clk : std_logic := '0';
 
 begin
 
-data_tx <= data_in;
+data_tx <= "01011001"; --data_in;
 
 --generate 48MHz clock
 osc : HSOSC generic map ( CLKHF_DIV => "0b00")
@@ -72,7 +72,7 @@ osc : HSOSC generic map ( CLKHF_DIV => "0b00")
 
 
 tx : uart_tx port map(
-	clk_out    => clk_96,
+	clk_out    => clk_23,
 	clk_in     => clk_48,
 	enable     => en,
 	ready      => ready,
@@ -87,14 +87,14 @@ rx : uart_rx port map(
 );
 
 spi_cs <= '1';
-clk_out <= clk_48;
+clk_out <= clk_23;
 
-process (clk_96) begin
-if (rising_edge(clk_96)) then
+process (clk_23) begin
+if (rising_edge(clk_23)) then
 	
 	if (init = '1') then
 		counter <= counter + 1;
-		if (counter < (38400 / byterate)) then
+		if (counter < (115200 / byterate)) then
 			en <= '1';
 		else
 			en <= '0';
@@ -111,7 +111,7 @@ if (rising_edge(clk_96)) then
 		init <= '1';
 		--use_external_clk <= '0';
 	else
-		init <= '0';
+		init <= '1';
 	end if;
 end if;
 end process;
