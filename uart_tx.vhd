@@ -13,7 +13,7 @@ use ieee.std_logic_unsigned.all;
 
 entity uart_tx is 
 port(
-	clk_out    : out std_logic; --9600 Hz clk
+	clk_out    : out std_logic; --384000 Hz clk
 	clk_in     : in std_logic;  --48 MHz clk
 	enable     : in std_logic; --Rising edge of this causes singular byte send
 	ready      : out std_logic; --High when not sending byte
@@ -25,7 +25,7 @@ end;
 architecture synth of uart_tx is
 
 signal clk_48: std_logic;  --48MHz clk
-signal clk_38 : std_logic; --38400hz clk
+signal clk_23 : std_logic; --38400hz clk
 
 signal count : integer range 0 to 5000 := 0; --divisor for 48MHz->9600Hz
 signal flag : std_logic := '0'; --set to one to initiate byte send
@@ -54,12 +54,12 @@ begin
 		if (state = rdy) then
 			count <= 0;
 		--generate new clock
-		elsif (count < 1250) then
+		elsif (count < 208) then
 			count <= count + 1;
 			flag <= '0';
 		else
 			count <= 0;
-			clk_38 <= not clk_38;
+			clk_23 <= not clk_23;
 			--set flag to 1 when necessary
 			if (data_count < 10 and enable = '1') then
 				data_count <= data_count + 1;
@@ -121,7 +121,7 @@ begin
 end process;
 
 --wire up tmp values to outputs
-clk_out <= clk_38;
+clk_out <= clk_23;
 clk_48 <= clk_in;
 serial_txd <= tx_temp;
 ready <= not writeable;
