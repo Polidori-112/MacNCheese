@@ -3,6 +3,8 @@
 -- Tufts ES 4 (http://www.ece.tufts.edu/es/4/)
 
 library IEEE;
+-- reads and writes to RAM
+
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 

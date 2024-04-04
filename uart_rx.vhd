@@ -1,3 +1,5 @@
+-- Receives data from the UART
+
 Library IEEE;
 use ieee.std_logic_1164.all;
 use IEEE.numeric_std.all;
@@ -6,10 +8,11 @@ use ieee.std_logic_unsigned.all;
 
 entity uart_rx is
 port(
-	clk_48     : in std_logic;
-	reset      : in std_logic;
-	serial_rxd : in std_logic;
-	data       : out std_logic_vector(7 downto 0)
+	clk_48     : in std_logic;                    -- input clk at 48 MHz
+	reset      : in std_logic;                    -- set high to set output data to all zeros
+												  -- while low it remains unchanged util new byte received
+	serial_rxd : in std_logic;                    -- input signal
+	data       : out std_logic_vector(7 downto 0) -- output byte received
 );
 end;
 
@@ -50,13 +53,13 @@ end process;
 process (clk_48) begin
 	if (rising_edge(clk_48)) then
 		case (state) is
-		
+		-- reset data when requested
 		when rst =>
 			data_temp <= "0000000000";
 			if (reset = '0') then
 				state <= rdy;
 			end if;
-			
+		-- idle state, changes states when reset or input signal changes
 		when rdy =>
 			if (reset = '1') then
 				state <= rst;
@@ -66,11 +69,13 @@ process (clk_48) begin
 				state <= rdy;
 			end if;
 			bit_count <= 0;
-		
+		-- data read state
 		when recv_data =>
 			if (reset = '1') then
 				state <= rst;
+			-- repeat for each of 10 bits
 			elsif (bit_count < 10) then
+				-- receive bit and shift sum by one to enter next bit
 				if (flag = '1') then
 					data_temp(bit_count) <= serial_rxd;
 					bit_count <= bit_count + 1;

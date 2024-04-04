@@ -1,4 +1,4 @@
--- s_test.vhd
+-- uart_tx.vhd
 
 -- Writes the input byte to UART
 -- Set enable to high when byte is ready to be sent
