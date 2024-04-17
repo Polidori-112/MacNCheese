@@ -22,20 +22,10 @@ port(
 end;
 
 architecture synth of raw_sampler is
-
-component HSOSC is
-generic (
-	CLKHF_DIV : String := "0b00"); -- Divide 48MHz clock by 2?N (0-3)
-port(
-	CLKHFPU : in std_logic := 'X'; -- Set to 1 to power up
-	CLKHFEN : in std_logic := 'X'; -- Set to 1 to enable output
-	CLKHF : out std_logic := 'X'); -- Clock output
-end component;
-
 component uart_tx is
 port(
 	clk_out    : out std_logic;
-	clk_in     : in std_logic;
+	clk_48     : in std_logic;
 	enable     : in std_logic;
 	ready      : out std_logic;
 	data       : in std_logic_vector(7 downto 0);
@@ -59,7 +49,6 @@ signal ready : std_logic;
 signal data_tx : std_logic_vector(7 downto 0);
 signal data_rx : std_logic_vector(7 downto 0);
 signal init : std_logic;
-signal test : std_logic;
 
 signal use_external_clk : std_logic := '0';
 
@@ -69,7 +58,7 @@ data_tx <= data_in;
 
 tx : uart_tx port map(
 	clk_out    => clk_23,
-	clk_in     => clk_48,
+	clk_48     => clk_48,
 	enable     => en,
 	ready      => ready,
 	data       => data_tx,
