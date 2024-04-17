@@ -20,7 +20,7 @@ port(
 	clk_in     : in  std_logic; -- Input clock to sync logic to
 	clk_48     : in std_logic;  -- 48MHz clk for inter-project use(module uses 1 of 1 HSOSC on chip)
 	serial_txd : out std_logic; -- UART Tx, must be pin 14
-	serial_rxd : in  std_logic -- UART Rx, must be pin 15
+	serial_rxd : in  std_logic  -- UART Rx, must be pin 15
 );
 end;
 
@@ -29,7 +29,7 @@ architecture synth of ram_sampler is
 component uart_tx is
 port(
 	clk_out    : out std_logic;
-	clk_in     : in std_logic;
+	clk_48     : in std_logic;
 	enable     : in std_logic;
 	ready      : out std_logic;
 	data       : in std_logic_vector(7 downto 0);
@@ -83,14 +83,14 @@ signal r_data_reg  : std_logic_vector(NUM_INPUTS - 1 downto 0); -- address to re
 signal finished_w  : std_logic := '0'; -- flipped high when write completed
 
 type state_type is (rdy, writing, reading); -- state definitions ie. 'writing' to RAM
-signal state : state_type := rdy; -- state of machine
+signal state : state_type := writing; -- state of machine
 
 begin
 
 -- trasmit to UART
 tx : uart_tx port map(
 	clk_out    => clk_23,
-	clk_in     => clk_48,
+	clk_48     => clk_48,
 	enable     => en,
 	ready      => ready,
 	data       => data_tx,
@@ -175,7 +175,7 @@ if (rising_edge(clk_custom)) then
 			rx_reset <= '0';
 			tx_init <= '0';
 			-- switch to state when requested
-			if (finished_w = '1') then
+			if (finished_w = '1' or data_rx = "01010001" or data_rx <= "01110001") then
 				finished_w <= '0';
 				rx_reset <= '1';
 				state <= reading;
