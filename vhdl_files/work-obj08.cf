@@ -1,0 +1,19 @@
+v 4
+file . "uart_tx.vhd" "9c3fcf7a4ce41e2338ebfa02dc6cc34df395b656" "20240419141513.186":
+  entity uart_tx at 9( 334) + 0 on 21;
+  architecture synth of uart_tx at 25( 817) + 0 on 22;
+file . "uart_rx.vhd" "2a3db315b9e5e73d78ab94c5ff8aac09ea088425" "20240419141513.182":
+  entity uart_rx at 3( 34) + 0 on 19;
+  architecture synth of uart_rx at 20( 555) + 0 on 20;
+file . "raw_sampler.vhd" "6d30d80312a851aa995ef2439ca61c10aab2ddb1" "20240419141513.179":
+  entity raw_sampler at 3( 59) + 0 on 17;
+  architecture synth of raw_sampler at 24( 954) + 0 on 18;
+file . "ram_sampler.vhd" "58e748e9ef93f5ff849af5723d660a4b083d0ea7" "20240419141513.175":
+  entity ram_sampler at 3( 78) + 0 on 15;
+  architecture synth of ram_sampler at 27( 1004) + 0 on 16;
+file . "ramdp.vhd" "35fc6e4eb40f213ccca3d6a918827add4c34010a" "20240419141513.170":
+  entity ramdp at 5( 160) + 0 on 13;
+  architecture synth of ramdp at 27( 894) + 0 on 14;
+file . "mnc.vhd" "d1968ca4ff48b2f4293e0845d6dc6187d83315cb" "20240419141513.166":
+  entity mnc at 1( 0) + 0 on 11;
+  architecture synth of mnc at 29( 1419) + 0 on 12;

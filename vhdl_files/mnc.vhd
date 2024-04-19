@@ -11,15 +11,15 @@ generic(
 	byterate    : integer := 1;    -- Used to send byte when high (MUST BE <= 20000) 
 								   -- this is bytes per second transmitted when use_ext_clk = 0
 								   -- Set this value to 1 when use_ext_clk is high
-	NUM_INPUTS  : natural := 8;    -- Number of input bytes (DO NOT CHANGE)
+	NUM_INPUTS  : natural := 8;    -- Number of input bits (DO NOT CHANGE)
 	NUM_SAMPLES : natural := 1024; -- When using RAM Maximum number of samples (must be < 1000000)
 	ADDR_WIDTH  : natural := 10    -- When using RAM log2 of num_samples (rounded up)
 );
 port(
-	data_in    : in  std_logic_vector(7 downto 0); -- input to be written
-	clk_48     : in std_logic; -- 48MHz clk for inter-procect use(module uses 1 of 1 HSOSC on chip)
-	ext_clk    : in std_logic; -- Sampling clock to sync sampler with logic
-							   -- Must be manually connected, < 20 kHz and 'use_ext_clk' must be 1
+	data_in    : in std_logic_vector(7 downto 0); -- input to be written
+	clk_48     : in std_logic;  -- 48MHz clk for inter-procect use(module uses 1 of 1 HSOSC on chip)
+	ext_clk    : in std_logic;  -- Sampling clock to sync sampler with logic
+							    -- Must be manually connected, < 20 kHz and 'use_ext_clk' must be 1
 	serial_txd : out std_logic; -- UART Tx, must be pin 14
 	serial_rxd : in  std_logic; -- UART Rx, must be pin 15
 	spi_cs     : out std_logic  -- UART CS, must be pin 16 and HIGH
