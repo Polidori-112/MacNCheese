@@ -47,7 +47,6 @@ def add_lines_to_file(file_path, line_identifier, lines_to_add):
     # read data
     with open(file_path, 'rb') as file:
         file_lines = file.readlines()
-    print(file_lines)
 
     # find location to add data within
     found_index = -1
