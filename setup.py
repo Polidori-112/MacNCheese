@@ -159,21 +159,21 @@ pdc_lines_to_add = [
 
 
 # Download .vhd files
-# download_files(files_to_download)
+download_files(files_to_download)
 
 # Edit the .rdf file so Radiant recognizes them
-# rdf_file_path = find_rdf("./")
-# add_lines_to_file(rdf_file_path, "</Source>", rdf_lines_to_add)
+rdf_file_path = find_rdf("./")
+add_lines_to_file(rdf_file_path, "</Source>", rdf_lines_to_add)
 # 
 # Add serial pins to entity declaration
-# top_file = find_top_module(rdf_file_path)
-# add_lines_to_file(top_file, "port(", entity_lines_to_add)
+top_file = find_top_module(rdf_file_path)
+add_lines_to_file(top_file, "port(", entity_lines_to_add)
 # 
 # Add component to architecture
-# add_lines_to_file(top_file, "architecture", arch_lines_to_add)
+add_lines_to_file(top_file, "architecture", arch_lines_to_add)
 # 
 # Add port map template
-# add_lines_to_file(top_file, "begin", port_lines_to_add)
+add_lines_to_file(top_file, "begin", port_lines_to_add)
 
 # Edit the I/O pin values
 pdc_file_path = find_pdc("./")
