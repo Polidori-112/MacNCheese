@@ -1,10 +1,15 @@
 -- uart_tx.vhd
 
--- Writes the input byte to UART
+-- Writes the input byte to UART @ 230400 Baud (No parity bit)
 -- Set enable to high when byte is ready to be sent
 -- Ready is high when byte is not being sent/module is ready to receive new byte to send
 -- Byte is transmitted through serial_txd to pin 14 for UART communication
 -- Ensure pin 16 is set high when using UART communications
+--
+-- IMPORTANT NOTE: On rare occassions, specific repeated transmissions could cause Radiant to no longer
+-- recognize the ICE40UP5K FPGA, making it unflashable by Radiant. In this case, flashing any project-- through Yosys or some other synthesis tool should reset the FPGA to a recognizeable/flashable state
+-- 
+-- Tufts ES 4 (http://www.ece.tufts.edu/es/4/)
 
 Library IEEE;
 use ieee.std_logic_1164.all;
@@ -13,11 +18,11 @@ use ieee.std_logic_unsigned.all;
 
 entity uart_tx is 
 port(
-	clk_out    : out std_logic; --384000 Hz clk
-	clk_48     : in std_logic;  --48 MHz clk
-	enable     : in std_logic; --Rising edge of this causes singular byte send
+	clk_out    : out std_logic; --230400 Hz clk
+	clk_48     : in  std_logic; --48 MHz clk
+	enable     : in  std_logic; --Rising edge of this causes singular byte send
 	ready      : out std_logic; --High when not sending byte
-	data       : in std_logic_vector(7 downto 0); -- byte to be sent
+	data       : in  std_logic_vector(7 downto 0); -- byte to be sent
 	serial_txd : out std_logic --UART output
 );
 end; 

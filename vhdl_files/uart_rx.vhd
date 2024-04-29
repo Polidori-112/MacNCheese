@@ -1,4 +1,12 @@
--- Receives data from the UART
+-- uart_rx.vhd
+
+-- Receives 8 bits of data from the UART @ 230400 Baud (No parity bit)
+-- Constantly outputs most recent data received to data logic vector
+-- Set reset to '1' to set output data to all '0's, keep at '0' to allow new output data values
+-- Connect serial_rxd to pin 15 to receive data
+-- Ensure pin 16 is set high when using UART communications
+--
+-- Tufts ES 4 (http://www.ece.tufts.edu/es/4/)
 
 Library IEEE;
 use ieee.std_logic_1164.all;
@@ -8,10 +16,10 @@ use ieee.std_logic_unsigned.all;
 
 entity uart_rx is
 port(
-	clk_48     : in std_logic;                    -- input clk at 48 MHz
-	reset      : in std_logic;                    -- set high to set output data to all zeros
-												  -- while low it remains unchanged util new byte received
-	serial_rxd : in std_logic;                    -- input signal
+	clk_48     : in std_logic; -- input clk at 48 MHz
+	reset      : in std_logic; -- set high to set output data to all zeros
+							   -- while low it remains it remains unchanged util new byte received
+	serial_rxd : in std_logic; -- input signal
 	data       : out std_logic_vector(7 downto 0) -- output byte received
 );
 end;
@@ -49,7 +57,7 @@ begin
 end process;
 
 
-
+-- Receive data from serial_rxd -> data_temp
 process (clk_48) begin
 	if (rising_edge(clk_48)) then
 		case (state) is
@@ -87,7 +95,7 @@ process (clk_48) begin
 		end case;	
 	end if;
 end process;
-
+-- Extract useful data bits to output
 data <= data_temp(8 downto 1);
 
 end;
