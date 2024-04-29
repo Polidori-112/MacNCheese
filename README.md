@@ -25,7 +25,8 @@ Running the setup.py script in the directory of a Lattice Radiant project will a
 5. Synthesize and flash your FPGA
 
 ### Software:
-TODO once files are uploaded
+- Download and run executeable files from releases tab on the right of main page
+- Currently do not have working executeables for M1/M2 Macs or Linux
 
 ## File Info:
 - example.zip: Full Lattice Radiant example project displayed in video containing all vhdl files and showcasing an implementation of MacNCheese Logic analyzer to record the data displayed by a simple counter
